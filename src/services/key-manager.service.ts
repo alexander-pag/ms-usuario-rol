@@ -15,7 +15,7 @@ export class KeyManagerService {
    * Add service methods here
    */
 
-  async CambiarCLave(credencialesClave: CambioClave): Promise<boolean> {
+  async CambiarCLave(credencialesClave: CambioClave): Promise<User | null> {
     let usuario = await this.usuarioRepository.findOne({
       where: {
         _id: credencialesClave.id_user,
@@ -25,9 +25,9 @@ export class KeyManagerService {
     if (usuario) {
       usuario.clave = credencialesClave.nueva_clave;
       await this.usuarioRepository.updateById(credencialesClave.id_user, usuario)
-      return true;
+      return usuario;
     } else {
-      return false;
+      return null;
     }
   }
 
