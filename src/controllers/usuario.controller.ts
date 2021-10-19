@@ -13,153 +13,156 @@ import {
   response
 } from '@loopback/rest';
 import {Configuracion} from '../llaves/config';
-import {CambioClave, CredencialesRecuperarClave, Credentials, Notificacion, NotificacionSms, User} from '../models';
-import {UserRepository} from '../repositories';
-import {KeyManagerService, NotificacionesService} from '../services';
+import {CambioClave, Credenciales, CredencialesRecuperarClave, Notificacion, NotificacionSms, Usuario} from '../models';
+import {UsuarioRepository} from '../repositories';
+import {AdministradorClavesService, NotificacionesService, ServicioSesionService} from '../services';
 
 
-export class UserController {
+export class UsuarioController {
   constructor(
-    @repository(UserRepository)
-    public userRepository: UserRepository,
-    @service(KeyManagerService)
-    public servicioClaves: KeyManagerService,
+    @repository(UsuarioRepository)
+    public UsuarioRepository: UsuarioRepository,
+    @service(AdministradorClavesService)
+    public servicioClaves: AdministradorClavesService,
     @service(NotificacionesService)
-    public servicioNotificaciones: NotificacionesService
+    public servicioNotificaciones: NotificacionesService,
+    @service(ServicioSesionService)
+    public servicioSesion: ServicioSesionService,
+
   ) { }
 
-  @post('/users')
+  @post('/usuario')
   @response(200, {
-    description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
+    description: 'Creacion de un usuario',
+    content: {'application/json': {schema: getModelSchemaRef(Usuario)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, {
-            title: 'NewUser',
+          schema: getModelSchemaRef(Usuario, {
+            title: 'NewUsuario',
             exclude: ['_id'],
           }),
         },
       },
     })
-    user: Omit<User, '_id'>,
-  ): Promise<User> {
+    Usuario: Omit<Usuario, '_id'>,
+  ): Promise<Usuario> {
     let clave = this.servicioClaves.CrearClaveAleatoria();
     console.log(clave)
     let claveCifrada = this.servicioClaves.CifrarTexto(clave);
-    user.clave = claveCifrada;
-    let usuarioCreado = await this.userRepository.create(user);
+    Usuario.clave = claveCifrada;
+    let usuarioCreado = await this.UsuarioRepository.create(Usuario);
     if (usuarioCreado) {
       let datos = new Notificacion();
-      datos.destinatario = user.email;
+      datos.destinatario = Usuario.correo;
       datos.asunto = Configuracion.asuntoUsuarioCreado;
-      datos.mensaje = `${Configuracion.saludo} ${user.nombre} <br />${Configuracion.mensajeUsuarioCreado} <br /> ${clave}`;
+      datos.mensaje = `${Configuracion.saludo} <b> ${Usuario.nombre} </b> <br /> <br />${Configuracion.mensajeUsuarioCreado} <span> <b> ${clave} </b> <span>`;
       this.servicioNotificaciones.EnviarCorreo(datos);
     }
     return usuarioCreado;
   }
 
-  @get('/users/count')
+  @get('/usuario/count')
   @response(200, {
-    description: 'User model count',
+    description: 'Obtener un usuario',
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(User) where?: Where<User>,
+    @param.where(Usuario) where?: Where<Usuario>,
   ): Promise<Count> {
-    return this.userRepository.count(where);
+    return this.UsuarioRepository.count(where);
   }
 
-  @get('/users')
+  @get('/usuario')
   @response(200, {
-    description: 'Array of User model instances',
+    description: 'Obtener todos los usuarios',
     content: {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(User, {includeRelations: true}),
+          items: getModelSchemaRef(Usuario, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(User) filter?: Filter<User>,
-  ): Promise<User[]> {
-    return this.userRepository.find(filter);
+    @param.filter(Usuario) filter?: Filter<Usuario>,
+  ): Promise<Usuario[]> {
+    return this.UsuarioRepository.find(filter);
   }
 
-  @patch('/users')
+  @patch('/usuario')
   @response(200, {
-    description: 'User PATCH success count',
+    description: 'Usuario editado correctamente',
     content: {'application/json': {schema: CountSchema}},
   })
   async updateAll(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
+          schema: getModelSchemaRef(Usuario, {partial: true}),
         },
       },
     })
-    user: User,
-    @param.where(User) where?: Where<User>,
+    Usuario: Usuario,
+    @param.where(Usuario) where?: Where<Usuario>,
   ): Promise<Count> {
-    return this.userRepository.updateAll(user, where);
+    return this.UsuarioRepository.updateAll(Usuario, where);
   }
 
-  @get('/users/{id}')
+  @get('/usuario/{id}')
   @response(200, {
-    description: 'User model instance',
+    description: 'Obtener datos de un usuario por id',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(User, {includeRelations: true}),
+        schema: getModelSchemaRef(Usuario, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(User, {exclude: 'where'}) filter?: FilterExcludingWhere<User>
-  ): Promise<User> {
-    return this.userRepository.findById(id, filter);
+    @param.filter(Usuario, {exclude: 'where'}) filter?: FilterExcludingWhere<Usuario>
+  ): Promise<Usuario> {
+    return this.UsuarioRepository.findById(id, filter);
   }
 
-  @patch('/users/{id}')
+  @patch('/usuario/{id}')
   @response(204, {
-    description: 'User PATCH success',
+    description: 'Usuario editado correctamente',
   })
   async updateById(
     @param.path.string('id') id: string,
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(User, {partial: true}),
+          schema: getModelSchemaRef(Usuario, {partial: true}),
         },
       },
     })
-    user: User,
+    Usuario: Usuario,
   ): Promise<void> {
-    await this.userRepository.updateById(id, user);
+    await this.UsuarioRepository.updateById(id, Usuario);
   }
 
-  @put('/users/{id}')
+  @put('/usuario/{id}')
   @response(204, {
-    description: 'User PUT success',
+    description: 'Usuario PUT success',
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() user: User,
+    @requestBody() Usuario: Usuario,
   ): Promise<void> {
-    await this.userRepository.replaceById(id, user);
+    await this.UsuarioRepository.replaceById(id, Usuario);
   }
 
-  @del('/users/{id}')
+  @del('/usuario/{id}')
   @response(204, {
-    description: 'User DELETE success',
+    description: 'Usuario eliminado correctamente',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRepository.deleteById(id);
+    await this.UsuarioRepository.deleteById(id);
   }
 
 
@@ -169,32 +172,43 @@ export class UserController {
   @post('/identificar-usuario')
   @response(200, {
     description: 'Identificación de usuarios',
-    content: {'application/json': {schema: getModelSchemaRef(Credentials)}},
+    content: {'application/json': {schema: getModelSchemaRef(Credenciales)}},
   })
   async identificarUsuario(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Credentials, {
+          schema: getModelSchemaRef(Credenciales, {
             title: 'Identificar Usuario'
           }),
         },
       },
     })
-    credenciales: Credentials,
+    credenciales: Credenciales,
   ): Promise<object | null> {
-    let usuario = await this.userRepository.findOne({
+    let usuario = await this.UsuarioRepository.findOne({
       where: {
-        email: credenciales.usuario,
+        correo: credenciales.usuario,
         clave: credenciales.clave
       }
     });
     if (usuario) {
-      usuario.clave = ""
-      // generar token y agregarlo a la respuesta.
+      // generar un token
+      let token = this.servicioSesion.GenerarToken(usuario);
+      return {
+        usuario: {
+          nombreUsuario: usuario.correo,
+          estado: usuario.estado
+        },
+        tk: token
+
+      };
+    } else {
+      return null
     }
-    return usuario;
   }
+
+
 
 
   @post("/cambiar-clave", {
@@ -207,12 +221,12 @@ export class UserController {
   async cambiarClave(
     @requestBody() datos: CambioClave
   ): Promise<Boolean> {
-    let usuario = await this.userRepository.findById(datos.id_user)
+    let usuario = await this.UsuarioRepository.findById(datos.id_usuario)
     if (usuario) {
       if (usuario.clave == datos.clave_actual) {
         usuario.clave = datos.nueva_clave;
         console.log(datos.nueva_clave);
-        await this.userRepository.updateById(datos.id_user, usuario)
+        await this.UsuarioRepository.updateById(datos.id_usuario, usuario)
         let notificacionSms = new NotificacionSms()
         notificacionSms.destinatario = usuario.celular
         notificacionSms.mensaje = `${Configuracion.saludo} ${usuario.nombre} ${Configuracion.mensajeCambioClave}`
@@ -238,9 +252,9 @@ export class UserController {
   async recuperarClave(
     @requestBody() credencialRecuperar: CredencialesRecuperarClave
   ): Promise<Boolean> {
-    let usuario = await this.userRepository.findOne({
+    let usuario = await this.UsuarioRepository.findOne({
       where: {
-        email: credencialRecuperar.email
+        correo: credencialRecuperar.correo
       }
     })
     if (usuario) {
@@ -249,7 +263,7 @@ export class UserController {
       let claveCifrada = this.servicioClaves.CifrarTexto(clave);
       console.log(claveCifrada);
       usuario.clave = claveCifrada
-      await this.userRepository.updateById(usuario._id, usuario)
+      await this.UsuarioRepository.updateById(usuario._id, usuario)
       let notificacionSms = new NotificacionSms();
       notificacionSms.destinatario = usuario.celular
       notificacionSms.mensaje = `${Configuracion.saludo} ${usuario.nombre} ${Configuracion.mensajeRecuperarClave} ${clave}`

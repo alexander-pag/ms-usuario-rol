@@ -3,9 +3,9 @@ import {
   CountSchema,
   Filter,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
-  import {
+import {
   del,
   get,
   getModelSchemaRef,
@@ -13,21 +13,19 @@ import {
   param,
   patch,
   post,
-  requestBody,
+  requestBody
 } from '@loopback/rest';
 import {
-User,
-UserRol,
-Rol,
+  Rol, Usuario
 } from '../models';
-import {UserRepository} from '../repositories';
+import {UsuarioRepository} from '../repositories';
 
-export class UserRolController {
+export class UsuarioRolController {
   constructor(
-    @repository(UserRepository) protected userRepository: UserRepository,
+    @repository(UsuarioRepository) protected usuarioRepository: UsuarioRepository,
   ) { }
 
-  @get('/users/{id}/rols', {
+  @get('/usuario/{id}/rols', {
     responses: {
       '200': {
         description: 'Array of User has many Rol through UserRol',
@@ -43,10 +41,10 @@ export class UserRolController {
     @param.path.string('id') id: string,
     @param.query.object('filter') filter?: Filter<Rol>,
   ): Promise<Rol[]> {
-    return this.userRepository.rols(id).find(filter);
+    return this.usuarioRepository.rols(id).find(filter);
   }
 
-  @post('/users/{id}/rols', {
+  @post('/usuario/{id}/rols', {
     responses: {
       '200': {
         description: 'create a Rol model instance',
@@ -55,7 +53,7 @@ export class UserRolController {
     },
   })
   async create(
-    @param.path.string('id') id: typeof User.prototype._id,
+    @param.path.string('id') id: typeof Usuario.prototype._id,
     @requestBody({
       content: {
         'application/json': {
@@ -67,10 +65,10 @@ export class UserRolController {
       },
     }) rol: Omit<Rol, '_id'>,
   ): Promise<Rol> {
-    return this.userRepository.rols(id).create(rol);
+    return this.usuarioRepository.rols(id).create(rol);
   }
 
-  @patch('/users/{id}/rols', {
+  @patch('/usuario/{id}/rols', {
     responses: {
       '200': {
         description: 'User.Rol PATCH success count',
@@ -90,10 +88,10 @@ export class UserRolController {
     rol: Partial<Rol>,
     @param.query.object('where', getWhereSchemaFor(Rol)) where?: Where<Rol>,
   ): Promise<Count> {
-    return this.userRepository.rols(id).patch(rol, where);
+    return this.usuarioRepository.rols(id).patch(rol, where);
   }
 
-  @del('/users/{id}/rols', {
+  @del('/usuario/{id}/rols', {
     responses: {
       '200': {
         description: 'User.Rol DELETE success count',
@@ -105,6 +103,6 @@ export class UserRolController {
     @param.path.string('id') id: string,
     @param.query.object('where', getWhereSchemaFor(Rol)) where?: Where<Rol>,
   ): Promise<Count> {
-    return this.userRepository.rols(id).delete(where);
+    return this.usuarioRepository.rols(id).delete(where);
   }
 }

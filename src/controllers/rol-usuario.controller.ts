@@ -4,47 +4,41 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
-import {UserRol} from '../models';
-import {UserRolRepository} from '../repositories';
+import {UsuarioRol} from '../models';
+import {UsuarioRolRepository} from '../repositories';
 
-export class RolUserController {
+export class RolUsuarioController {
   constructor(
-    @repository(UserRolRepository)
-    public userRolRepository : UserRolRepository,
-  ) {}
+    @repository(UsuarioRolRepository)
+    public usuarioRolRepository: UsuarioRolRepository,
+  ) { }
 
   @post('/rol-user')
   @response(200, {
     description: 'UserRol model instance',
-    content: {'application/json': {schema: getModelSchemaRef(UserRol)}},
+    content: {'application/json': {schema: getModelSchemaRef(UsuarioRol)}},
   })
   async create(
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserRol, {
+          schema: getModelSchemaRef(UsuarioRol, {
             title: 'NewUserRol',
             exclude: ['_id'],
           }),
         },
       },
     })
-    userRol: Omit<UserRol, '_id'>,
-  ): Promise<UserRol> {
-    return this.userRolRepository.create(userRol);
+    usuarioRol: Omit<UsuarioRol, '_id'>,
+  ): Promise<UsuarioRol> {
+    return this.usuarioRolRepository.create(usuarioRol);
   }
 
   @get('/rol-user/count')
@@ -53,9 +47,9 @@ export class RolUserController {
     content: {'application/json': {schema: CountSchema}},
   })
   async count(
-    @param.where(UserRol) where?: Where<UserRol>,
+    @param.where(UsuarioRol) where?: Where<UsuarioRol>,
   ): Promise<Count> {
-    return this.userRolRepository.count(where);
+    return this.usuarioRolRepository.count(where);
   }
 
   @get('/rol-user')
@@ -65,18 +59,18 @@ export class RolUserController {
       'application/json': {
         schema: {
           type: 'array',
-          items: getModelSchemaRef(UserRol, {includeRelations: true}),
+          items: getModelSchemaRef(UsuarioRol, {includeRelations: true}),
         },
       },
     },
   })
   async find(
-    @param.filter(UserRol) filter?: Filter<UserRol>,
-  ): Promise<UserRol[]> {
-    return this.userRolRepository.find(filter);
+    @param.filter(UsuarioRol) filter?: Filter<UsuarioRol>,
+  ): Promise<UsuarioRol[]> {
+    return this.usuarioRolRepository.find(filter);
   }
 
-  @patch('/rol-user')
+  @patch('/rol-usuario')
   @response(200, {
     description: 'UserRol PATCH success count',
     content: {'application/json': {schema: CountSchema}},
@@ -85,14 +79,14 @@ export class RolUserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserRol, {partial: true}),
+          schema: getModelSchemaRef(UsuarioRol, {partial: true}),
         },
       },
     })
-    userRol: UserRol,
-    @param.where(UserRol) where?: Where<UserRol>,
+    usuarioRol: UsuarioRol,
+    @param.where(UsuarioRol) where?: Where<UsuarioRol>,
   ): Promise<Count> {
-    return this.userRolRepository.updateAll(userRol, where);
+    return this.usuarioRolRepository.updateAll(usuarioRol, where);
   }
 
   @get('/rol-user/{id}')
@@ -100,15 +94,15 @@ export class RolUserController {
     description: 'UserRol model instance',
     content: {
       'application/json': {
-        schema: getModelSchemaRef(UserRol, {includeRelations: true}),
+        schema: getModelSchemaRef(UsuarioRol, {includeRelations: true}),
       },
     },
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(UserRol, {exclude: 'where'}) filter?: FilterExcludingWhere<UserRol>
-  ): Promise<UserRol> {
-    return this.userRolRepository.findById(id, filter);
+    @param.filter(UsuarioRol, {exclude: 'where'}) filter?: FilterExcludingWhere<UsuarioRol>
+  ): Promise<UsuarioRol> {
+    return this.usuarioRolRepository.findById(id, filter);
   }
 
   @patch('/rol-user/{id}')
@@ -120,13 +114,13 @@ export class RolUserController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(UserRol, {partial: true}),
+          schema: getModelSchemaRef(UsuarioRol, {partial: true}),
         },
       },
     })
-    userRol: UserRol,
+    usuarioRol: UsuarioRol,
   ): Promise<void> {
-    await this.userRolRepository.updateById(id, userRol);
+    await this.usuarioRolRepository.updateById(id, usuarioRol);
   }
 
   @put('/rol-user/{id}')
@@ -135,9 +129,9 @@ export class RolUserController {
   })
   async replaceById(
     @param.path.string('id') id: string,
-    @requestBody() userRol: UserRol,
+    @requestBody() usuarioRol: UsuarioRol,
   ): Promise<void> {
-    await this.userRolRepository.replaceById(id, userRol);
+    await this.usuarioRolRepository.replaceById(id, usuarioRol);
   }
 
   @del('/rol-user/{id}')
@@ -145,6 +139,6 @@ export class RolUserController {
     description: 'UserRol DELETE success',
   })
   async deleteById(@param.path.string('id') id: string): Promise<void> {
-    await this.userRolRepository.deleteById(id);
+    await this.usuarioRolRepository.deleteById(id);
   }
 }

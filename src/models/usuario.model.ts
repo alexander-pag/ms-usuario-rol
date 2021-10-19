@@ -1,9 +1,9 @@
 import {Entity, hasMany, model, property} from '@loopback/repository';
 import {Rol} from './rol.model';
-import {UserRol} from './user-rol.model';
+import {UsuarioRol} from './usuario-rol.model';
 
 @model()
-export class User extends Entity {
+export class Usuario extends Entity {
   @property({
     type: 'string',
     id: true,
@@ -39,7 +39,7 @@ export class User extends Entity {
     type: 'string',
     required: true,
   })
-  email: string;
+  correo: string;
 
   @property({
     type: 'string',
@@ -59,16 +59,16 @@ export class User extends Entity {
   })
   clave?: string;
 
-  @hasMany(() => Rol, {through: {model: () => UserRol, keyFrom: 'id_user', keyTo: 'id_rol'}})
+  @hasMany(() => Rol, {through: {model: () => UsuarioRol, keyFrom: 'id_usuario', keyTo: 'id_rol'}})
   rols: Rol[];
 
-  constructor(data?: Partial<User>) {
+  constructor(data?: Partial<Usuario>) {
     super(data);
   }
 }
 
-export interface UserRelations {
+export interface UsuarioRelations {
   // describe navigational properties here
 }
 
-export type UserWithRelations = User & UserRelations;
+export type UsuarioWithRelations = Usuario & UsuarioRelations;

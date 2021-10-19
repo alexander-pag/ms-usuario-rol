@@ -1,47 +1,31 @@
 import { /* inject, */ BindingScope, injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {CambioClave, User} from '../models';
-import {UserRepository} from '../repositories';
+import {CambioClave, Usuario} from '../models';
+import {UsuarioRepository} from '../repositories';
 var generator = require('generate-password');
 var CryptoJS = require("crypto-js");
 
 @injectable({scope: BindingScope.TRANSIENT})
-export class KeyManagerService {
-  constructor(@repository(UserRepository)
-  public usuarioRepository: UserRepository
+export class AdministradorClavesService {
+  constructor(@repository(UsuarioRepository)
+  public usuarioRepository: UsuarioRepository
   ) { }
 
   /*
    * Add service methods here
    */
 
-  async CambiarCLave(credencialesClave: CambioClave): Promise<User | null> {
+  async CambiarCLave(credencialesClave: CambioClave): Promise<Usuario | null> {
     let usuario = await this.usuarioRepository.findOne({
       where: {
-        _id: credencialesClave.id_user,
+        _id: credencialesClave.id_usuario,
         clave: credencialesClave.clave_actual
       }
     });
     if (usuario) {
       usuario.clave = credencialesClave.nueva_clave;
-      await this.usuarioRepository.updateById(credencialesClave.id_user, usuario)
+      await this.usuarioRepository.updateById(credencialesClave.id_usuario, usuario)
       return usuario;
-    } else {
-      return null;
-    }
-  }
-
-  async RecuperarClave(email: string): Promise<User | null> {
-    let usuario = await this.usuarioRepository.findOne({
-      where: {
-        email: email
-      }
-    });
-    if (usuario) {
-      let clave = this.CrearClaveAleatoria();
-      usuario.clave = this.CifrarTexto(clave);
-      await this.usuarioRepository.updateById(usuario._id, usuario)
-      return usuario
     } else {
       return null;
     }

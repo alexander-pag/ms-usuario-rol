@@ -6,7 +6,7 @@ export class CambioClave extends Model {
     type: 'string',
     required: true,
   })
-  id_user: string;
+  id_usuario: string;
 
   @property({
     type: 'string',

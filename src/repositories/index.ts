@@ -1,3 +1,4 @@
 export * from './rol.repository';
-export * from './user-rol.repository';
-export * from './user.repository';
+export * from './usuario-rol.repository';
+export * from './usuario.repository';
+
