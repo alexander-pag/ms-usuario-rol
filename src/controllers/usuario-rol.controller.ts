@@ -16,13 +16,14 @@ import {
   requestBody
 } from '@loopback/rest';
 import {
-  Rol, Usuario
+  Rol, RolesUsuario, Usuario, UsuarioRol
 } from '../models';
-import {UsuarioRepository} from '../repositories';
+import {UsuarioRepository, UsuarioRolRepository} from '../repositories';
 
 export class UsuarioRolController {
   constructor(
     @repository(UsuarioRepository) protected usuarioRepository: UsuarioRepository,
+    @repository(UsuarioRolRepository) protected usuarioRolRepository: UsuarioRolRepository,
   ) { }
 
   @get('/usuario/{id}/rols', {
@@ -105,4 +106,73 @@ export class UsuarioRolController {
   ): Promise<Count> {
     return this.usuarioRepository.rols(id).delete(where);
   }
+
+
+  @post('/usuario-rol', {
+    responses: {
+      '200': {
+        description: 'create a Rol model instance',
+        content: {'application/json': {schema: getModelSchemaRef(UsuarioRol)}},
+      },
+    },
+  })
+  async createUnUsuarioUnRol(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(UsuarioRol, {
+            title: 'New',
+            exclude: ['_id'],
+          })
+        }
+      }
+    }) datos: Omit<UsuarioRol, '_id'>,
+  ): Promise<UsuarioRol | null> {
+    let registro = await this.usuarioRolRepository.create(datos);
+    return registro
+  }
+
+
+
+
+  @post('/usuario-rols/{id}', {
+    responses: {
+      '200': {
+        description: 'create a Rol model instance',
+        content: {'application/json': {schema: getModelSchemaRef(UsuarioRol)}},
+      },
+    },
+  })
+  async createUnUsuarioMuchosRol(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(RolesUsuario, {}),
+        },
+      },
+    }) datos: RolesUsuario,
+    @param.path.string('id') id_usuario: typeof Usuario.prototype._id,
+  ): Promise<Boolean> {
+    if (datos.roles.length > 0) {
+      datos.roles.forEach(async (id_rol: string) => {
+        let existe = await this.usuarioRolRepository.findOne({
+          where: {
+            id_usuario: id_usuario,
+            id_rol: id_rol
+          }
+        })
+        if (!existe) {
+          this.usuarioRolRepository.create({
+            id_usuario: id_usuario,
+            id_rol: id_rol
+          })
+        }
+
+      })
+      return true
+    }
+    return false
+  }
 }
+
+

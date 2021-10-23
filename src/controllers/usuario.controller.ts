@@ -15,7 +15,7 @@ import {
 import {Configuracion} from '../llaves/config';
 import {CambioClave, Credenciales, CredencialesRecuperarClave, Notificacion, NotificacionSms, Usuario} from '../models';
 import {UsuarioRepository} from '../repositories';
-import {AdministradorClavesService, NotificacionesService, ServicioSesionService} from '../services';
+import {AdministradorClavesService, NotificacionesService} from '../services';
 
 
 export class UsuarioController {
@@ -25,9 +25,7 @@ export class UsuarioController {
     @service(AdministradorClavesService)
     public servicioClaves: AdministradorClavesService,
     @service(NotificacionesService)
-    public servicioNotificaciones: NotificacionesService,
-    @service(ServicioSesionService)
-    public servicioSesion: ServicioSesionService,
+    public servicioNotificaciones: NotificacionesService
 
   ) { }
 
@@ -58,7 +56,7 @@ export class UsuarioController {
       let datos = new Notificacion();
       datos.destinatario = Usuario.correo;
       datos.asunto = Configuracion.asuntoUsuarioCreado;
-      datos.mensaje = `${Configuracion.saludo} <b> ${Usuario.nombre} </b> <br /> <br />${Configuracion.mensajeUsuarioCreado} <span> <b> ${clave} </b> <span>`;
+      datos.mensaje = `${Configuracion.saludo} ${Usuario.nombre} ${Configuracion.mensajeUsuarioCreado} ${Configuracion.usuario} ${usuarioCreado.correo} ${Configuracion.clave} <span style="color:blue;"> ${clave} </span>`;
       this.servicioNotificaciones.EnviarCorreo(datos);
     }
     return usuarioCreado;
@@ -194,15 +192,8 @@ export class UsuarioController {
     });
     if (usuario) {
       // generar un token
-      let token = this.servicioSesion.GenerarToken(usuario);
-      return {
-        usuario: {
-          nombreUsuario: usuario.correo,
-          estado: usuario.estado
-        },
-        tk: token
 
-      };
+      return null
     } else {
       return null
     }
